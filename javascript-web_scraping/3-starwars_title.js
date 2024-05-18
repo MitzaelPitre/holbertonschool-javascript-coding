@@ -1,12 +1,18 @@
 #!/usr/bin/node
 
 const request = require('request');
-const urlApi = 'https://swapi.co/api/films/' + process.argv[2];
+
+// Construir la URL de la API con el ID de la película proporcionado como argumento
+const movieId = process.argv[2];
+const urlApi = 'https://swapi-api.hbtn.io/api/films/' + movieId;
 
 request(urlApi, function (error, response, body) {
   if (error) {
-    console.log(error); // Print the error if one occurred
+    console.log(error); // Imprimir el error si ocurrió uno
+  } else if (response.statusCode !== 200) {
+    console.log(`Error: ${response.statusCode}`); // Manejar errores HTTP
   } else {
-    console.log(JSON.parse(body).title);
+    const film = JSON.parse(body);
+    console.log(film.title);
   }
 });
