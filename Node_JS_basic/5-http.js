@@ -10,8 +10,8 @@ async function countStudents(filepath) {
     // strip headers and convert to list of dicts
     const dictList = [];
     const noHeaderArray = headerArray.slice(1);
-    for (let i = 0; i < noHeaderArray.length; i += 1) {
-      const data = noHeaderArray[i].split(',');
+    for (const line of noHeaderArray) {
+      const data = line.split(',');
       if (data.length === headers.length) {
         const row = {};
         for (let j = 0; j < headers.length; j += 1) {
@@ -72,8 +72,8 @@ const app = http.createServer((req, res) => {
       }) => {
         res.write('This is the list of our students\n');
         res.write(`Number of students: ${countStudents}\n`);
-        res.write(`Number of students in CS: ${countCS}. List: ${studentsCS.toString().split(',').join(', ')}\n`);
-        res.write(`Number of students in SWE: ${countSWE}. List: ${studentsSWE.toString().split(',').join(', ')}`);
+        res.write(`Number of students in CS: ${countCS}. List: ${studentsCS.join(', ')}\n`);
+        res.write(`Number of students in SWE: ${countSWE}. List: ${studentsSWE.join(', ')}`);
         res.end();
       })
       .catch(() => {
@@ -83,6 +83,8 @@ const app = http.createServer((req, res) => {
   }
 });
 
-app.listen(port, hostname);
+app.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
 
 module.exports = app;
