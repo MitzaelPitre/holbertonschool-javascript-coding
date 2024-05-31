@@ -1,44 +1,35 @@
 const fs = require('fs');
 
-function countStudents(path) {
+function countStudents(filePath) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error('Cannot load the database');
+  }
   try {
-    // Leer el archivo de manera síncrona
-    const data = fs.readFileSync(path, 'utf8');
-
-    // Dividir el archivo en líneas y eliminar las líneas vacías
-    const lines = data.split('\n').filter(line => line.trim() !== '');
-
-    // Contadores para cada campo
-    let csCount = 0;
-    let sweCount = 0;
-
-    // Arrays para almacenar los nombres de estudiantes en cada campo
-    const csStudents = [];
-    const sweStudents = [];
-
-    // Recorrer todas las líneas del archivo
-    lines.forEach(line => {
-      // Dividir cada línea en columnas utilizando coma como delimitador
-      const [firstname, lastname, age, field] = line.split(',');
-
-      // Incrementar el contador apropiado y agregar el nombre de estudiante al array apropiado
-      if (field === 'CS') {
-        csCount++;
-        csStudents.push(firstname);
-      } else if (field === 'SWE') {
-        sweCount++;
-        sweStudents.push(firstname);
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const lines = fileContent.split('\n');
+    const fieldCounts = {};
+    let totalStudents = 0;
+    lines.forEach((line, index) => {
+      if (index === 0 || line.trim() === '') {
+        return;
       }
+      const [firstName, lastName, age, field] = line.split(',');
+      if (!firstName || !lastName || !age || !field) {
+        return;
+      }
+      if (!fieldCounts[field]) {
+        fieldCounts[field] = { count: 0, names: [] };
+      }
+      fieldCounts[field].count += 1;
+      fieldCounts[field].names.push(firstName);
+      totalStudents += 1;
     });
-
-    // Imprimir el número total de estudiantes y la lista de estudiantes para cada campo
-    console.log(`Number of students: ${lines.length}`);
-    console.log(`Number of students in CS: ${csCount}. List: ${csStudents.join(', ')}`);
-    console.log(`Number of students in SWE: ${sweCount}. List: ${sweStudents.join(', ')}`);
+    console.log(`Number of students: ${totalStudents}`);
+    for (const [field, { count, names }] of Object.entries(fieldCounts)) {
+      console.log(`Number of students in ${field}: ${count}. List: ${names.join(', ')}`);
+    }
   } catch (error) {
-    // Capturar y manejar errores al leer el archivo
-    console.error('Cannot load the database');
+    throw new Error('Cannot load the database');
   }
 }
-
 module.exports = countStudents;
